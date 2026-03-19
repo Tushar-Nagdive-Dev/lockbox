@@ -1,0 +1,30 @@
+spring:
+  application:
+    name: lockbox
+
+  main:
+    banner-mode: CONSOLE
+    log-startup-info: false
+
+  shell:
+    interactive:
+      enabled: true
+
+# Logging
+logging:
+  file:
+    name: logs/lockbox.log
+  level:
+    root: INFO
+    org:
+      springframework: WARN
+      inn:
+        lockbox: DEBUG
+  pattern:
+    console: "%clr(%msg){faint}%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+  logback:
+    rollingpolicy:
+      max-file-size: 10MB
+      max-history: 7
+      total-size-cap: 50MB

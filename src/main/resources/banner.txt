@@ -1,0 +1,48 @@
+${AnsiColor.BRIGHT_BLACK}
+  ╔════════════════════════════════════════════════════════════════╗
+${AnsiColor.BRIGHT_MAGENTA}
+  ║   ██╗      ██████╗  ██████╗██╗  ██╗██████╗  ██████╗ ██╗  ██╗   ║
+  ║   ██║     ██╔═══██╗██╔════╝██║ ██╔╝██╔══██╗██╔═══██╗╚██╗██╔╝   ║
+  ║   ██║     ██║   ██║██║     █████╔╝ ██████╔╝██║   ██║ ╚███╔╝    ║
+  ║   ██║     ██║   ██║██║     ██╔═██╗ ██╔══██╗██║   ██║ ██╔██╗    ║
+  ║   ███████╗╚██████╔╝╚██████╗██║  ██╗██████╔╝╚██████╔╝██╔╝ ██╗   ║
+  ║   ╚══════╝ ╚═════╝  ╚═════╝╚═╝  ╚═╝╚═════╝  ╚═════╝ ╚═╝  ╚═╝   ║
+${AnsiColor.BRIGHT_BLACK}
+  ╚════════════════════════════════════════════════════════════════╝
+
+${AnsiColor.WHITE}   SYSTEM        : ${AnsiColor.BRIGHT_GREEN}SECURE & OPERATIONAL
+${AnsiColor.WHITE}   ENGINE        : ${AnsiColor.BRIGHT_CYAN}JAVA ${java.version}
+${AnsiColor.WHITE}   FRAMEWORK     : ${AnsiColor.BRIGHT_CYAN}SPRING BOOT 4.0.3
+${AnsiColor.WHITE}   CRYPTO CORE   : ${AnsiColor.BRIGHT_MAGENTA}AES-256-GCM
+${AnsiColor.WHITE}   PLATFORM      : ${AnsiColor.BRIGHT_MAGENTA}${os.arch}
+${AnsiColor.WHITE}   BUILD         : ${AnsiColor.BRIGHT_YELLOW}${application.version}
+
+${AnsiColor.BRIGHT_BLACK}   ───────────────────────────────────────────────────────
+
+${AnsiColor.BRIGHT_GREEN}   ✔ Encryption Layer Initialized
+${AnsiColor.BRIGHT_GREEN}   ✔ Secure Vault Mounted
+${AnsiColor.BRIGHT_GREEN}   ✔ Key Derivation Engine Active
+
+${AnsiColor.BRIGHT_BLACK}   ─────────────── COMMAND CENTER ───────────────
+
+${AnsiColor.BRIGHT_GREEN}   init:${AnsiColor.WHITE}vault boot   ${AnsiColor.BRIGHT_BLACK}       |
+${AnsiColor.BRIGHT_GREEN}   encrypt:${AnsiColor.WHITE}secure data   ${AnsiColor.BRIGHT_BLACK}   |
+${AnsiColor.BRIGHT_GREEN}   decrypt:${AnsiColor.WHITE}decode data   ${AnsiColor.BRIGHT_BLACK}   |
+${AnsiColor.BRIGHT_GREEN}   keys:${AnsiColor.WHITE}key mgmt   ${AnsiColor.BRIGHT_BLACK}         |
+${AnsiColor.BRIGHT_GREEN}   rotate:${AnsiColor.WHITE}refresh keys   ${AnsiColor.BRIGHT_BLACK}   |
+${AnsiColor.BRIGHT_GREEN}   audit:${AnsiColor.WHITE}logs view   ${AnsiColor.BRIGHT_BLACK}       |
+${AnsiColor.BRIGHT_GREEN}   status:${AnsiColor.WHITE}health check   ${AnsiColor.BRIGHT_BLACK}   |
+${AnsiColor.BRIGHT_RED}   exit:${AnsiColor.WHITE}terminate
+
+${AnsiColor.BRIGHT_BLACK}   ───────────────────────────────────────────────────────
+
+${AnsiColor.BRIGHT_MAGENTA}   MODE        : ${AnsiColor.WHITE}INTERACTIVE SECURE SHELL
+${AnsiColor.BRIGHT_CYAN}   SECURITY    : ${AnsiColor.WHITE}ZERO-TRUST ENFORCED
+${AnsiColor.BRIGHT_YELLOW}   INPUT       : ${AnsiColor.WHITE}TYPE 'help:<command>' FOR DETAILS
+
+${AnsiColor.BRIGHT_BLACK}   ───────────────────────────────────────────────────────
+
+${AnsiColor.BRIGHT_YELLOW}   "Mathematics protects what humans cannot."
+
+${AnsiStyle.ITALIC}${AnsiColor.BRIGHT_BLACK}   Awaiting secure input...
+${AnsiStyle.NORMAL}
