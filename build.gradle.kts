@@ -40,6 +40,9 @@ dependencies {
 	// SQLite Driver (No Flyway needed)
     implementation("org.xerial:sqlite-jdbc:3.45.1.0")
 
+	// REQUIRED for Repository support and mapping
+	implementation("org.springframework.boot:spring-boot-starter-data-jdbc")
+
     // 4. Lombok & Testing
     compileOnly("org.projectlombok:lombok")
     annotationProcessor("org.projectlombok:lombok")

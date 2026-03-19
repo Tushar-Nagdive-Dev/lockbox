@@ -1,0 +1,12 @@
+spring:
+  datasource:
+    url: jdbc:sqlite:./dev-lockbox.db
+    driver-class-name: org.sqlite.JDBC
+
+logging:
+  file:
+    name: ./logs/dev-lockbox.log
+  level:
+    root: INFO
+    '[org.springframework]': WARN
+    '[org.inn.lockbox]': DEBUG # High visibility for your own code while developing

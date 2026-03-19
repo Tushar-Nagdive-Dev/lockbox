@@ -1,0 +1,18 @@
+spring:
+  datasource:
+    # Hidden path for the vault
+    url: jdbc:sqlite:${user.home}/.lockbox/vault.db
+    driver-class-name: org.sqlite.JDBC
+
+logging:
+  file:
+    # Hidden path for logs
+    name: ${user.home}/.lockbox/logs/vault.log
+  level:
+    root: WARN    # Keep the console silent for a clean CLI experience
+    '[org.inn.lockbox]': INFO # Only show important application events
+  logback:
+    rollingpolicy:
+      max-file-size: 5MB # Smaller files for easier handling
+      max-history: 30    # Keep a month of logs for audit purposes
+      total-size-cap: 100MB
