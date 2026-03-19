@@ -1,7 +1,6 @@
-spring:
-  datasource:
-    url: jdbc:sqlite:./dev-lockbox.db
-    driver-class-name: org.sqlite.JDBC
+# Custom Nitrite Property
+lockbox:
+  path: ./dev-lockbox.db
 
 logging:
   file:
@@ -9,4 +8,4 @@ logging:
   level:
     root: INFO
     '[org.springframework]': WARN
-    '[org.inn.lockbox]': DEBUG # High visibility for your own code while developing
+    '[org.inn.lockbox]': DEBUG # High visibility for development

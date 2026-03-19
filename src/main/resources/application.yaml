@@ -3,7 +3,7 @@ spring:
     name: lockbox
   
   profiles:
-    active: dev # Default to dev so you don't accidentally create folders
+    active: dev
     
   main:
     banner-mode: CONSOLE
@@ -13,16 +13,7 @@ spring:
     interactive:
       enabled: true
 
-  sql:
-    init:
-      mode: always
-      platform: sqlite
-      
-  data:
-    jdbc:
-      repositories:
-        enabled: true
-
+# Logging pattern stays the same
 logging:
   pattern:
     console: "%clr(%msg){faint}%n"
