@@ -34,7 +34,11 @@ dependencies {
 
     // 3. Keep your existing UI dependencies
     implementation("org.jline:jline:3.29.0")
+	implementation("com.password4j:password4j:1.8.2")
     implementation("org.fusesource.jansi:jansi:2.4.1")
+
+	// SQLite Driver (No Flyway needed)
+    implementation("org.xerial:sqlite-jdbc:3.45.1.0")
 
     // 4. Lombok & Testing
     compileOnly("org.projectlombok:lombok")
