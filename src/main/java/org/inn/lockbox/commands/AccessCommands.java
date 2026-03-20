@@ -75,6 +75,7 @@ public class AccessCommands {
         ConfirmationInput component = new ConfirmationInput(terminal, 
             "Are you sure? This will permanently delete the lockbox.", false);
         component.setResourceLoader(resourceLoader);
+        component.setTemplateExecutor(templateExecutor);
         
         var context = component.run(ConfirmationInputContext.empty());
         if (Boolean.TRUE.equals(context.getResultValue())) {

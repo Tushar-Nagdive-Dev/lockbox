@@ -31,7 +31,7 @@ public class SessionManager {
     }
 
     /**
-     * Runs every 10 seconds to check if the user has walked away.
+     * Runs every 60 seconds to check if the user has walked away.
      */
     @Scheduled(fixedDelay = 60000)
     public void checkIdleTimeout() {
