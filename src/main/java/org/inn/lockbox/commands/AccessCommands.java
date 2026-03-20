@@ -1,6 +1,8 @@
 package org.inn.lockbox.commands;
 
 import lombok.RequiredArgsConstructor;
+
+import org.inn.lockbox.config.SessionManager;
 import org.inn.lockbox.services.LockboxSentinel;
 import org.jline.terminal.Terminal;
 import org.springframework.core.io.ResourceLoader;
@@ -20,6 +22,7 @@ public class AccessCommands {
     private final Terminal terminal;
     private final ResourceLoader resourceLoader;
     private final TemplateExecutor templateExecutor;
+    private final SessionManager sessionManager;
 
     @Command(name = "getin", description = "Enter the vault or initialize a new one")
     public String getIn() {
@@ -42,6 +45,7 @@ public class AccessCommands {
         try {
             if (password == null || password.isEmpty()) return "Login cancelled.";
             sentinel.permitEntry(password);
+            sessionManager.recordActivity(); // Reset idle timer on successful login
             return "Access Granted.";
         } catch (Exception e) {
             return "Access Denied. Passphrase incorrect.";
