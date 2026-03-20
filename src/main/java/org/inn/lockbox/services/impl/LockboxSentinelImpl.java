@@ -1,6 +1,7 @@
 package org.inn.lockbox.services.impl;
 
 import java.io.File;
+import java.util.Arrays;
 
 import org.dizitart.no2.Nitrite;
 import org.dizitart.no2.common.mapper.JacksonMapperModule;
@@ -22,63 +23,101 @@ public class LockboxSentinelImpl implements LockboxSentinel {
     private String dbPath;
 
     private final SecurityService securityService;
-
     private Nitrite activeDb;
-    
-    /**
-     * Checks if a Lockbox already exists on this machine.
-     */
+
     @Override
     public boolean isExistingLockbox() {
         return new File(dbPath).exists();
     }
 
-    /**
-     * The core "Unlock" logic. This takes the raw passphrase, 
-     * derives the high-security key, and opens the Nitrite gate.
-     */
     @Override
     public void permitEntry(String passphrase) {
-        // Derive the AES-256 key from the passphrase
         char[] securekey = securityService.deriveKey(passphrase);
+        try {
+            MVStoreModule storeModule = MVStoreModule.withConfig()
+                .filePath(dbPath)
+                .compress(true)
+                .encryptionKey(securekey)
+                .build();
+            
+            this.activeDb = Nitrite.builder()
+                .loadModule(storeModule)
+                .loadModule(new JacksonMapperModule())
+                .openOrCreate();
+        } finally {
+            // Memory Safety
+            Arrays.fill(securekey, ' ');
+        }
+    }
 
-        MVStoreModule storeModule = MVStoreModule.withConfig()
-            .filePath(dbPath)
-            .compress(true)
-            .encryptionKey(securekey)
-            .build();
+    /**
+     * Update Passphrase Feature.
+     * We close the DB and re-open it with a new configuration to trigger re-keying.
+     */
+    public void updatePassphrase(String oldPass, String newPass) {
+        // 1. Verify we can open it with the old pass
+        permitEntry(oldPass);
         
-        this.activeDb = Nitrite.builder()
-            .loadModule(storeModule)
-            .loadModule(new JacksonMapperModule())
-            .openOrCreate();
+        char[] oldKey = securityService.deriveKey(oldPass);
+        char[] newKey = securityService.deriveKey(newPass);
+
+        try {
+            // In Nitrite 4, the re-keying is best handled by the Store's 
+            // setPassword or changePassword if accessible, otherwise 
+            // we use the String variant for the migration as Nitrite expects.
+            
+            activeDb.close(); // Close to ensure file handles are clean
+            
+            MVStoreModule rekeyModule = MVStoreModule.withConfig()
+                .filePath(dbPath)
+                .encryptionKey(oldKey)
+                .build();
+
+            // We use the String conversion ONLY within this local scope to satisfy the API
+            // while keeping the keys as char[] for as long as possible.
+            String sOld = new String(oldKey);
+            String sNew = new String(newKey);
+
+            this.activeDb = Nitrite.builder()
+                .loadModule(rekeyModule)
+                .addMigrations(new org.dizitart.no2.migration.Migration(1, 2) {
+                    @Override
+                    public void migrate(org.dizitart.no2.migration.InstructionSet instructions) {
+                        // Nitrite 4 migration API uses (user, oldPassword, newPassword)
+                        instructions.forDatabase().changePassword("user", sOld, sNew);
+                    }
+                })
+                .schemaVersion(2)
+                .openOrCreate();
+
+        } finally {
+            Arrays.fill(oldKey, ' ');
+            Arrays.fill(newKey, ' ');
+        }
+    }
+
+    public boolean nuke() {
+        revokeAccess();
+        File file = new File(dbPath);
+        return !file.exists() || file.delete();
     }
 
     @Override
     public void revokeAccess() {
-        if(this.activeDb != null) {
-            try {
-                this.activeDb.close();
-            } catch (Exception e) {
-                log.error("revokeAccess err", e);
-            } finally {
-                this.activeDb = null;
-            }
+        if (activeDb != null) {
+            activeDb.close();
+            activeDb = null;
         }
-    }
-
-    @Override
-    public Nitrite getDatabase() {
-        // In Nitrite 4, if the builder finished, the DB is open.
-        // We just need to make sure we've actually run permitEntry()
-        if (activeDb == null) {
-            throw new IllegalStateException("The Sentinel has not granted access. Please 'open' the lockbox first.");
-        }
-        return activeDb;
     }
 
     @Override
     public boolean isUnlocked() {
         return activeDb != null;
+    }
+
+    @Override
+    public Nitrite getDatabase() {
+        if (activeDb == null) throw new IllegalStateException("Vault is locked.");
+        return activeDb;
     }
 }

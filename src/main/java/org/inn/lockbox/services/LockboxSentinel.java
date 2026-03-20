@@ -8,6 +8,10 @@ public interface LockboxSentinel {
 
     void permitEntry(String passphrase);
 
+    void updatePassphrase(String oldPass, String newPass);
+
+    boolean nuke();
+
     Nitrite getDatabase();
 
     void revokeAccess();
