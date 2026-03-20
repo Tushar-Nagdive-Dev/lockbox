@@ -32,6 +32,14 @@ public class LockboxSentinelImpl implements LockboxSentinel {
 
     @Override
     public void permitEntry(String passphrase) {
+        if (isUnlocked()) return;
+
+        // Ensure the parent directory exists (Moved from the Config)
+        File file = new File(dbPath);
+        if (file.getParentFile() != null && !file.getParentFile().exists()) {
+            file.getParentFile().mkdirs();
+        }
+
         char[] securekey = securityService.deriveKey(passphrase);
         try {
             MVStoreModule storeModule = MVStoreModule.withConfig()
@@ -44,8 +52,12 @@ public class LockboxSentinelImpl implements LockboxSentinel {
                 .loadModule(storeModule)
                 .loadModule(new JacksonMapperModule())
                 .openOrCreate();
+                
+            log.info("Maya: Vault opened and secured.");
+        } catch (Exception e) {
+            log.error("Maya: Failed to unlock vault. Check your passphrase.");
+            throw e;
         } finally {
-            // Memory Safety
             Arrays.fill(securekey, ' ');
         }
     }
