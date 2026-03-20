@@ -1,6 +1,6 @@
 # Custom Nitrite Property
 lockbox:
-  path: ./dev-lockbox.db
+  path: ./db/dev-lockbox.db
 
 logging:
   file:

@@ -9,6 +9,7 @@ import org.springframework.shell.jline.tui.component.ConfirmationInput;
 import org.springframework.shell.jline.tui.component.StringInput;
 import org.springframework.shell.jline.tui.component.ConfirmationInput.ConfirmationInputContext;
 import org.springframework.shell.jline.tui.component.StringInput.StringInputContext;
+import org.springframework.shell.jline.tui.style.TemplateExecutor;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -18,6 +19,7 @@ public class AccessCommands {
     private final LockboxSentinel sentinel;
     private final Terminal terminal;
     private final ResourceLoader resourceLoader;
+    private final TemplateExecutor templateExecutor;
 
     @Command(name = "getin", description = "Enter the vault or initialize a new one")
     public String getIn() {
@@ -81,6 +83,7 @@ public class AccessCommands {
     private String askSecure(String prompt) {
         StringInput component = new StringInput(terminal, prompt, "");
         component.setResourceLoader(resourceLoader);
+        component.setTemplateExecutor(templateExecutor);
         component.setMaskCharacter('*');
         StringInputContext context = component.run(StringInputContext.empty());
         return context.getResultValue();

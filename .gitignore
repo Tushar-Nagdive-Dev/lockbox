@@ -39,3 +39,4 @@ logs/
 lockbox.log
 gradle
 *.db
+db
