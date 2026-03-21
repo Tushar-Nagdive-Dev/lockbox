@@ -25,8 +25,8 @@ ${AnsiColor.BRIGHT_GREEN}   ✔ Key Derivation Engine Active
 
 ${AnsiColor.BRIGHT_BLACK}   ─────────────── COMMAND CENTER ───────────────
 
-${AnsiColor.BRIGHT_GREEN}   getin : ${AnsiColor.WHITE}Enter your lockbox space   ${AnsiColor.BRIGHT_BLACK}       |
-${AnsiColor.BRIGHT_RED}   exit : ${AnsiColor.WHITE}terminate
+${AnsiColor.BRIGHT_GREEN}showcmd     : ${AnsiColor.WHITE}show list of all commands with example
+${AnsiColor.BRIGHT_RED}exit        : ${AnsiColor.BRIGHT_RED}terminate
 
 ${AnsiColor.BRIGHT_BLACK}   ───────────────────────────────────────────────────────
 
