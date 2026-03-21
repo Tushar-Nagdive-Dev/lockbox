@@ -1,6 +1,7 @@
 package org.inn.lockbox.services.impl;
 
 import java.io.File;
+import java.nio.file.Files;
 import java.util.Arrays;
 
 import org.dizitart.no2.Nitrite;
@@ -10,6 +11,7 @@ import org.inn.lockbox.services.LockboxSentinel;
 import org.inn.lockbox.services.SecurityService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.util.DigestUtils;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,15 +29,30 @@ public class LockboxSentinelImpl implements LockboxSentinel {
 
     @Override
     public boolean isExistingLockbox() {
-        return new File(dbPath).exists();
+        return new File(dbPath).exists() && new File(dbPath + ".meta").exists();
     }
 
     @Override
     public void permitEntry(String passphrase) {
         if (isUnlocked()) return;
 
-        // Ensure the parent directory exists (Moved from the Config)
         File file = new File(dbPath);
+        File metaFile = new File(dbPath + ".meta");
+
+        // 1. Instant Pre-Verification (The "Maya Shield")
+        if (metaFile.exists()) {
+            try {
+                String storedHash = Files.readString(metaFile.toPath());
+                String inputHash = DigestUtils.md5DigestAsHex(passphrase.getBytes());
+                if (!storedHash.equals(inputHash)) {
+                    throw new RuntimeException("Passphrase incorrect. Access Denied.");
+                }
+            } catch (Exception e) {
+                throw new RuntimeException("Security metadata is unreadable.");
+            }
+        }
+
+        // 2. Prepare Directories
         if (file.getParentFile() != null && !file.getParentFile().exists()) {
             file.getParentFile().mkdirs();
         }
@@ -43,73 +60,75 @@ public class LockboxSentinelImpl implements LockboxSentinel {
         char[] securekey = securityService.deriveKey(passphrase);
         try {
             MVStoreModule storeModule = MVStoreModule.withConfig()
-                .filePath(dbPath)
-                .compress(true)
-                .encryptionKey(securekey)
-                .build();
-            
+                    .filePath(dbPath)
+                    .compress(true)
+                    .encryptionKey(securekey)
+                    .build();
+
             this.activeDb = Nitrite.builder()
-                .loadModule(storeModule)
-                .loadModule(new JacksonMapperModule())
-                .openOrCreate();
-                
-            log.info("Maya: Vault opened and secured.");
+                    .loadModule(storeModule)
+                    .loadModule(new JacksonMapperModule())
+                    .openOrCreate();
+
+            // If this is a brand new vault, create the meta file now
+            if (!metaFile.exists()) {
+                Files.writeString(metaFile.toPath(), DigestUtils.md5DigestAsHex(passphrase.getBytes()));
+            }
+
+            log.info("Vault opened successfully.");
         } catch (Exception e) {
-            log.error("Maya: Failed to unlock vault. Check your passphrase.");
-            throw e;
+            log.error("Vault access error: {}", e.getMessage());
+            throw new RuntimeException("Vault is corrupted or key derivation failed.");
         } finally {
             Arrays.fill(securekey, ' ');
         }
     }
 
-    /**
-     * Update Passphrase Feature.
-     * We close the DB and re-open it with a new configuration to trigger re-keying.
-     */
+    @Override
     public void updatePassphrase(String oldPass, String newPass) {
-        // 1. Verify we can open it with the old pass
-        permitEntry(oldPass);
-        
+        if (!isUnlocked()) permitEntry(oldPass);
+
         char[] oldKey = securityService.deriveKey(oldPass);
         char[] newKey = securityService.deriveKey(newPass);
 
         try {
-            // In Nitrite 4, the re-keying is best handled by the Store's 
-            // setPassword or changePassword if accessible, otherwise 
-            // we use the String variant for the migration as Nitrite expects.
-            
-            activeDb.close(); // Close to ensure file handles are clean
-            
-            MVStoreModule rekeyModule = MVStoreModule.withConfig()
-                .filePath(dbPath)
-                .encryptionKey(oldKey)
-                .build();
+            revokeAccess();
 
-            // We use the String conversion ONLY within this local scope to satisfy the API
-            // while keeping the keys as char[] for as long as possible.
+            MVStoreModule rekeyModule = MVStoreModule.withConfig()
+                    .filePath(dbPath)
+                    .encryptionKey(oldKey)
+                    .build();
+
             String sOld = new String(oldKey);
             String sNew = new String(newKey);
 
             this.activeDb = Nitrite.builder()
-                .loadModule(rekeyModule)
-                .addMigrations(new org.dizitart.no2.migration.Migration(1, 2) {
-                    @Override
-                    public void migrate(org.dizitart.no2.migration.InstructionSet instructions) {
-                        // Nitrite 4 migration API uses (user, oldPassword, newPassword)
-                        instructions.forDatabase().changePassword("user", sOld, sNew);
-                    }
-                })
-                .schemaVersion(2)
-                .openOrCreate();
+                    .loadModule(rekeyModule)
+                    .addMigrations(new org.dizitart.no2.migration.Migration(1, 2) {
+                        @Override
+                        public void migrate(org.dizitart.no2.migration.InstructionSet instructions) {
+                            instructions.forDatabase().changePassword("user", sOld, sNew);
+                        }
+                    })
+                    .schemaVersion(2)
+                    .openOrCreate();
 
+            // Update the meta file with the new passphrase hash
+            Files.writeString(new File(dbPath + ".meta").toPath(), DigestUtils.md5DigestAsHex(newPass.getBytes()));
+
+        } catch (Exception e) {
+            log.error("Passphrase update failed", e);
+            throw new RuntimeException("Update failed. Could not re-key the vault.");
         } finally {
             Arrays.fill(oldKey, ' ');
             Arrays.fill(newKey, ' ');
         }
     }
 
+    @Override
     public boolean nuke() {
         revokeAccess();
+        new File(dbPath + ".meta").delete();
         File file = new File(dbPath);
         return !file.exists() || file.delete();
     }
@@ -123,9 +142,7 @@ public class LockboxSentinelImpl implements LockboxSentinel {
     }
 
     @Override
-    public boolean isUnlocked() {
-        return activeDb != null;
-    }
+    public boolean isUnlocked() { return activeDb != null; }
 
     @Override
     public Nitrite getDatabase() {
