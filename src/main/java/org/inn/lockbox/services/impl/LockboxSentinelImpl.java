@@ -75,9 +75,9 @@ public class LockboxSentinelImpl implements LockboxSentinel {
                 Files.writeString(metaFile.toPath(), DigestUtils.md5DigestAsHex(passphrase.getBytes()));
             }
 
-            log.info("Vault opened successfully.");
+            log.info("Lockbox opened successfully.");
         } catch (Exception e) {
-            log.error("Vault access error: {}", e.getMessage());
+            log.error("Lockbox access error: {}", e.getMessage());
             throw new RuntimeException("Vault is corrupted or key derivation failed.");
         } finally {
             Arrays.fill(securekey, ' ');
