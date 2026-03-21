@@ -63,7 +63,7 @@ public class AccessCommands {
 
         try {
             sentinel.updatePassphrase(oldP, newP1);
-            return "Maya: Vault re-keyed successfully.";
+            return "Maya: lockbox re-keyed successfully.";
         } catch (Throwable t) {
             return "\u001B[31mMaya: " + t.getMessage() + "\u001B[0m";
         }
@@ -77,7 +77,7 @@ public class AccessCommands {
 
         var context = component.run(ConfirmationInputContext.empty());
         if (Boolean.TRUE.equals(context.getResultValue())) {
-            return sentinel.nuke() ? "Maya: Vault destroyed." : "Maya: Error deleting files.";
+            return sentinel.nuke() ? "Maya: lockbox destroyed." : "Maya: Error deleting files.";
         }
         return "Maya: Reset aborted.";
     }
