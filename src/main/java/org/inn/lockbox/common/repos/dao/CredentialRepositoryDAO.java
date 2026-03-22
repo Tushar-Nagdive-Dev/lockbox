@@ -45,7 +45,11 @@ public class CredentialRepositoryDAO implements CredentialRepository {
     @Override
     public void save(Credential credential) {
         log.info("Saving credential {}", credential);
-        // Upsert logic: update if exists, insert if new
+        if(credential.getId() == null) {
+            getRepository().insert(credential);
+        } else {
+            getRepository().update(credential);
+        }
         getRepository().update(credential, true);
     }
 

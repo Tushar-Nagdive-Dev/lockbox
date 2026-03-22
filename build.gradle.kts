@@ -31,7 +31,13 @@ dependencies {
     implementation("org.springframework.shell:spring-shell-jline")
     implementation("org.jline:jline:3.29.0")
     implementation("org.fusesource.jansi:jansi:2.4.1")
+    // The "Magic" module that understands LocalDateTime
+    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
 
+    // Ensure Jackson Core is present (Spring Boot usually handles this,
+    // but good to have if you hit version conflicts in Java 25)
+    implementation("com.fasterxml.jackson.core:jackson-databind")
+    implementation("com.fasterxml.jackson.core:jackson-annotations")
     // === CRYPTOGRAPHY ===
     implementation("com.password4j:password4j:1.8.2")
 

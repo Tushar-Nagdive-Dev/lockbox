@@ -91,7 +91,7 @@ public class SealCommand {
             boolean confirmed = confirmFlow.run().getContext().get("confirm");
 
             if (confirmed) {
-//                credentialService.save(credential);
+                credentialService.sealNew(credential);
                 return "\n\u001B[32mMaya: [SUCCESS] " + credential.getTitle() + " has been permanently sealed.\u001B[0m";
             } else {
                 return "\n\u001B[33mMaya: Operation aborted. No data was saved.\u001B[0m";

@@ -4,8 +4,11 @@ import java.io.File;
 import java.nio.file.Files;
 import java.util.Arrays;
 
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.dizitart.no2.Nitrite;
+import org.dizitart.no2.common.mapper.JacksonMapper;
 import org.dizitart.no2.common.mapper.JacksonMapperModule;
+import org.dizitart.no2.common.module.NitriteModule;
 import org.dizitart.no2.mvstore.MVStoreModule;
 import org.inn.lockbox.services.LockboxSentinel;
 import org.inn.lockbox.services.SecurityService;
@@ -59,6 +62,9 @@ public class LockboxSentinelImpl implements LockboxSentinel {
 
         char[] securekey = securityService.deriveKey(passphrase);
         try {
+            JacksonMapper mapper = new JacksonMapper();
+            mapper.registerJacksonModule(new JavaTimeModule());
+            NitriteModule jacksonModule = NitriteModule.module(mapper);
             MVStoreModule storeModule = MVStoreModule.withConfig()
                     .filePath(dbPath)
                     .compress(true)
@@ -67,10 +73,10 @@ public class LockboxSentinelImpl implements LockboxSentinel {
 
             this.activeDb = Nitrite.builder()
                     .loadModule(storeModule)
-                    .loadModule(new JacksonMapperModule())
+                    .loadModule(jacksonModule)
                     .openOrCreate();
 
-            // If this is a brand new vault, create the meta file now
+            // If this is a brandnew vault, create the meta file now
             if (!metaFile.exists()) {
                 Files.writeString(metaFile.toPath(), DigestUtils.md5DigestAsHex(passphrase.getBytes()));
             }
