@@ -29,8 +29,8 @@ public class ViewAllCommands {
         // Vault Operations Card
         if (sentinel.isUnlocked()) {
             ui.append(new ListDataView("Vault Operations")
-                .add("store", "Encrypt new secret", "store --id fb")
-                .add("list", "View all secrets", "list --all")
+                .add("seal", "Add new credential in lockbox", "seal")
+                .add("unseal", "View sealed credential in readonly mode", "unseal")
                 .render());
         }
 
