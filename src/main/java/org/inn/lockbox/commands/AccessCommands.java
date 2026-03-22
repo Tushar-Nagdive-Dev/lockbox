@@ -2,14 +2,15 @@ package org.inn.lockbox.commands;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.inn.lockbox.components.LockboxInput;
 import org.inn.lockbox.services.LockboxSentinel;
+import org.jline.reader.LineReader;
+import org.jline.reader.LineReaderBuilder;
 import org.jline.terminal.Terminal;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.shell.core.command.annotation.Command;
 import org.springframework.shell.jline.tui.component.ConfirmationInput;
-import org.springframework.shell.jline.tui.component.StringInput;
 import org.springframework.shell.jline.tui.component.ConfirmationInput.ConfirmationInputContext;
-import org.springframework.shell.jline.tui.component.StringInput.StringInputContext;
 import org.springframework.shell.jline.tui.style.TemplateExecutor;
 import org.springframework.stereotype.Component;
 
@@ -29,8 +30,8 @@ public class AccessCommands {
             if (sentinel.isUnlocked()) return "Maya: You are already authorized.";
 
             if (!sentinel.isExistingLockbox()) {
-                String p1 = askSecure("Create New Master Passphrase: ");
-                String p2 = askSecure("Confirm Master Passphrase: ");
+                String p1 = askSecure("Create New Master Passphrase");
+                String p2 = askSecure("Confirm Master Passphrase");
 
                 if (p1 == null || p1.isEmpty() || !p1.equals(p2)) {
                     return "\u001B[31mMaya: Initialization failed. Passphrases must match.\u001B[0m";
@@ -63,7 +64,7 @@ public class AccessCommands {
 
         try {
             sentinel.updatePassphrase(oldP, newP1);
-            return "Maya: Vault re-keyed successfully.";
+            return "Maya: lockbox re-keyed successfully.";
         } catch (Throwable t) {
             return "\u001B[31mMaya: " + t.getMessage() + "\u001B[0m";
         }
@@ -77,17 +78,20 @@ public class AccessCommands {
 
         var context = component.run(ConfirmationInputContext.empty());
         if (Boolean.TRUE.equals(context.getResultValue())) {
-            return sentinel.nuke() ? "Maya: Vault destroyed." : "Maya: Error deleting files.";
+            return sentinel.nuke() ? "Maya: lockbox destroyed." : "Maya: Error deleting files.";
         }
         return "Maya: Reset aborted.";
     }
 
-    private String askSecure(String prompt) {
-        StringInput component = new StringInput(terminal, prompt, "");
-        component.setResourceLoader(resourceLoader);
-        component.setTemplateExecutor(templateExecutor);
-        component.setMaskCharacter('*');
-        StringInputContext context = component.run(StringInputContext.empty());
-        return context.getResultValue();
+    private String askSecure(String label) {
+        return LockboxInput.builder()
+                .terminal(terminal)
+                .label(label)
+                .mask('*')
+                .required(true)
+                .min(4)
+                .pattern("^[a-zA-Z0-9]+$")
+                .build()
+                .run();
     }
 }

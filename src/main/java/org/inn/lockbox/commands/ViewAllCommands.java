@@ -22,7 +22,7 @@ public class ViewAllCommands {
             .add("getin", "Authorize session for lockbox", "> getin")
             .add("exit", "Close connection", "> exit")
             .add("change-pass", "Change your master lock", "> change-pass")
-            .add("nuke", "Destroy the vault (All data)", "> nuke")
+            .add("lockbox-empty", "Destroy the vault (All data)", "> nuke")
             .render()
         );
 
