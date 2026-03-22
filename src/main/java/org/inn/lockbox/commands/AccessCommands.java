@@ -2,6 +2,7 @@ package org.inn.lockbox.commands;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.inn.lockbox.components.LockboxInput;
 import org.inn.lockbox.services.LockboxSentinel;
 import org.jline.reader.LineReader;
 import org.jline.reader.LineReaderBuilder;
@@ -82,24 +83,15 @@ public class AccessCommands {
         return "Maya: Reset aborted.";
     }
 
-    private String askSecure(String promptLabel) {
-        // 1. Create a direct LineReader. This bypasses the Spring Shell UI bugs.
-        LineReader reader = LineReaderBuilder.builder()
+    private String askSecure(String label) {
+        return LockboxInput.builder()
                 .terminal(terminal)
-                .build();
-
-        // 2. Use the 'reading a variable' approach which is 100% stable with backspace
-        // The 'null' is the mask character. For passwords, use '*'
-        try {
-            String input = reader.readLine(promptLabel + ": ", '*');
-
-            // 3. Clean the line manually after Enter so Maya's next message is fresh
-            terminal.writer().print("\r\u001B[K");
-            terminal.flush();
-
-            return input;
-        } catch (Exception e) {
-            return null;
-        }
+                .label(label)
+                .mask('*')
+                .required(true)
+                .min(4)
+                .pattern("^[a-zA-Z0-9]+$")
+                .build()
+                .run();
     }
 }
