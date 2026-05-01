@@ -7,7 +7,6 @@ import java.util.Arrays;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.dizitart.no2.Nitrite;
 import org.dizitart.no2.common.mapper.JacksonMapper;
-import org.dizitart.no2.common.mapper.JacksonMapperModule;
 import org.dizitart.no2.common.module.NitriteModule;
 import org.dizitart.no2.mvstore.MVStoreModule;
 import org.inn.lockbox.services.LockboxSentinel;
