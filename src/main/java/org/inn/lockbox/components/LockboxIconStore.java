@@ -14,7 +14,7 @@ public class LockboxIconStore {
         // --- VAULT STATUS ---
         registry.put("vault.locked", "🔒");
         registry.put("vault.open", "🔓");
-        registry.put("vault.emptu", "🫙");
+        registry.put("vault.empty", "🫙");
         // --- DATA TYPES (The "What") ---
         registry.put("type.login",   "🔐");
         registry.put("type.bank",    "💳");
